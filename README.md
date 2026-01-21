@@ -37,3 +37,5 @@ Dealer-level BMW coding utility for iOS. Supports ENET-based connectivity, diagn
 swift test
 # Or open in Xcode: File > Open > select repo folder, run ECUCodingApp scheme
 ```
+
+**Note:** The full package, including the ECUCodingApp executable, requires Xcode on macOS to build since it uses SwiftUI. The ECUCodingCore library can be built and tested on Linux with Swift Package Manager.
