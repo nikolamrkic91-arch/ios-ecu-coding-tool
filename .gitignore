@@ -1,0 +1,25 @@
+# Xcode
+DerivedData/
+xcuserdata/
+
+# Swift Package Manager
+.build/
+
+# CocoaPods / Carthage / Mint / Tuist
+Pods/
+Carthage/Build/
+Mint/
+Tuist/Cache/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Logs
+*.log
+
+# User-specific
+*.xccheckout
+*.xcscmblueprint
