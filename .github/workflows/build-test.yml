@@ -10,6 +10,8 @@ jobs:
   build-and-test:
     name: Build and Test ECUCodingCore
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
     - name: Checkout code
@@ -37,6 +39,8 @@ jobs:
   lint:
     name: Swift Lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
     - name: Checkout code
