@@ -22,7 +22,7 @@ applyTo: "**/*.swift"
 ### Property Declarations
 - Use `let` by default; only use `var` when mutation is necessary
 - Prefer computed properties over methods for simple calculations
-- Use property wrappers (`@State`, `@Published`, `@ObservableObject`) appropriately in SwiftUI
+- Use property wrappers (`@State`, `@Published`, `@StateObject`, `@ObservedObject`) appropriately in SwiftUI
 
 ### Function Design
 - Keep functions focused and single-purpose
@@ -223,12 +223,14 @@ protocol BackupService {
 ### Preflight Pattern
 ```swift
 struct PreflightChecker {
+    private let connectionMonitor: ConnectionMonitor
+    
     func checkPreconditions() async throws {
-        guard chargerConnected() else {
+        guard connectionMonitor.isChargerConnected else {
             throw PreflightError.chargerNotConnected
         }
         
-        guard isLinkStable() else {
+        guard connectionMonitor.isLinkStable else {
             throw PreflightError.unstableConnection
         }
         
