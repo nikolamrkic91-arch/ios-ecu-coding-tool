@@ -9,17 +9,40 @@ struct ContentView: View {
     @State private var isWorking: Bool = false
     @State private var showingDTCs: Bool = false
     @State private var showingVO: Bool = false
+    @State private var showingBackups: Bool = false
+    @State private var showingPresets: Bool = false
 
-    // Swap SimulatedTransport with ENETTransport(host: "192.168.2.1") when testing with hardware.
-    private let transport = SimulatedTransport()
-    private lazy var uds = UDSService(transport: transport)
-    private lazy var diagnostic = DiagnosticService(udsService: uds)
+    @State private var transportType: TransportType = .simulated
+    @State private var enetHost: String = "192.168.2.1"
+    @State private var enetPort: String = "6801"
+    
+    private var transport: Transport {
+        switch transportType {
+        case .simulated:
+            return SimulatedTransport()
+        case .enet:
+            return ENETTransport(host: enetHost, port: UInt16(enetPort) ?? 6801)
+        }
+    }
+    
+    private var uds: UDSService {
+        UDSService(transport: transport)
+    }
+    
+    private var diagnostic: DiagnosticService {
+        DiagnosticService(udsService: uds)
+    }
+    
+    enum TransportType {
+        case simulated, enet
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
                     headerSection
+                    connectionSettingsSection
                     statusSection
                     actionsSection
                     resultsSection
@@ -35,19 +58,60 @@ struct ContentView: View {
             .sheet(isPresented: $showingVO) {
                 VOListView(options: voOptions)
             }
+            .sheet(isPresented: $showingBackups) {
+                BackupManagementView()
+            }
+            .sheet(isPresented: $showingPresets) {
+                PresetSelectionView()
+            }
         }
     }
     
     private var headerSection: some View {
         VStack(spacing: 8) {
-            Text("ECU Coding Tool")
+            Text("BMW ECU Coding Tool")
                 .font(.largeTitle).bold()
 
-            Text("Dealer-level BMW coding with guardrails")
+            Text("Professional dealer-level coding with safety guardrails")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
+    }
+    
+    private var connectionSettingsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Connection Settings")
+                .font(.headline)
+            
+            Picker("Transport", selection: $transportType) {
+                Text("ENET (Real Hardware)").tag(TransportType.enet)
+                Text("Simulated (Testing)").tag(TransportType.simulated)
+            }
+            .pickerStyle(.segmented)
+            
+            if transportType == .enet {
+                HStack {
+                    Text("ENET IP:")
+                        .frame(width: 80, alignment: .leading)
+                    TextField("192.168.2.1", text: $enetHost)
+                        .textFieldStyle(.roundedBorder)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                }
+                
+                HStack {
+                    Text("Port:")
+                        .frame(width: 80, alignment: .leading)
+                    TextField("6801", text: $enetPort)
+                        .textFieldStyle(.roundedBorder)
+                        .keyboardType(.numberPad)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(12)
     }
     
     private var statusSection: some View {
@@ -63,6 +127,10 @@ struct ContentView: View {
     
     private var actionsSection: some View {
         VStack(spacing: 12) {
+            Text("Operations")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
             Button {
                 Task { await connectAndTest() }
             } label: {
@@ -71,6 +139,11 @@ struct ContentView: View {
             }
             .buttonStyle(.borderedProminent)
             .disabled(isWorking)
+            
+            Text("Read Operations")
+                .font(.subheadline).bold()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 8)
             
             HStack(spacing: 12) {
                 Button {
@@ -90,6 +163,31 @@ struct ContentView: View {
                 }
                 .buttonStyle(.bordered)
                 .disabled(isWorking || status != "Connected")
+            }
+            
+            Text("Write Operations (Phase 2)")
+                .font(.subheadline).bold()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 8)
+            
+            HStack(spacing: 12) {
+                Button {
+                    showingPresets = true
+                } label: {
+                    Label("Presets", systemImage: "star.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(.orange)
+                
+                Button {
+                    showingBackups = true
+                } label: {
+                    Label("Backups", systemImage: "externaldrive.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(.blue)
             }
         }
     }
@@ -151,11 +249,11 @@ struct ContentView: View {
         do {
             try await transport.connect()
             status = "Connected"
-            lastResponse = "✅ Connected to simulated ECU"
+            lastResponse = "✅ Connected to \(transportType == .enet ? "ENET adapter at \(enetHost)" : "simulated ECU")"
             
             // Start a session
             let logger = SessionLogger.shared
-            _ = logger.startSession(vehicle: nil, transport: "SimulatedTransport")
+            _ = logger.startSession(vehicle: nil, transport: transportType == .enet ? "ENETTransport" : "SimulatedTransport")
             logger.logOperation(SessionOperation(
                 type: .connect,
                 description: "Connected to ECU",
@@ -254,22 +352,25 @@ struct PhaseStatusView: View {
             Text("Implementation Status")
                 .font(.headline)
             
-            PhaseRow(phase: "Phase 1", status: .inProgress, items: [
+            PhaseRow(phase: "Phase 1 (Read-Only)", status: .complete, items: [
                 "DTC read/clear ✅",
                 "VO/FA decode ✅",
                 "Module scanning ✅",
                 "Session logging ✅"
             ])
             
-            PhaseRow(phase: "Phase 2", status: .planned, items: [
-                "VO coding (controlled write)",
-                "FDL edits with validation",
-                "Mandatory backups"
+            PhaseRow(phase: "Phase 2 (Controlled Write)", status: .complete, items: [
+                "VO coding ✅",
+                "FDL parameter edits ✅",
+                "Backup/restore system ✅",
+                "Preset system ✅",
+                "Safety guardrails ✅"
             ])
             
-            PhaseRow(phase: "Phase 3", status: .planned, items: [
-                "Remote utility",
-                "Batch operations"
+            PhaseRow(phase: "Phase 3 (Advanced)", status: .planned, items: [
+                "Remote utility (planned)",
+                "Batch operations (planned)",
+                "Extended chassis support (planned)"
             ])
         }
         .padding()
