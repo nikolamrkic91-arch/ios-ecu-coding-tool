@@ -12,7 +12,7 @@ struct PresetSelectionView: View {
         if selectedCategory == .all {
             return allPresets
         }
-        return allPresets.filter { $0.category.rawValue.lowercased() == selectedCategory.rawValue.lowercased() }
+        return allPresets.filter { $0.category.rawValue == selectedCategory.rawValue }
     }
     
     var body: some View {
@@ -53,7 +53,7 @@ struct PresetSelectionView: View {
                 
                 ForEach(PresetCategoryFilter.allDefinedCases, id: \.self) { category in
                     CategoryChip(
-                        title: category.rawValue.capitalized,
+                        title: category.rawValue,
                         isSelected: selectedCategory == category
                     ) {
                         selectedCategory = category
@@ -67,12 +67,12 @@ struct PresetSelectionView: View {
 }
 
 enum PresetCategoryFilter: String, CaseIterable {
-    case all = "all"
-    case comfort = "comfort"
-    case lighting = "lighting"
-    case performance = "performance"
-    case multimedia = "multimedia"
-    case safety = "safety"
+    case all = "All"
+    case comfort = "Comfort"
+    case lighting = "Lighting"
+    case performance = "Performance"
+    case multimedia = "Multimedia"
+    case safety = "Safety"
     
     static var allDefinedCases: [PresetCategoryFilter] {
         [.comfort, .lighting, .performance, .multimedia, .safety]
@@ -132,6 +132,8 @@ struct PresetDetailView: View {
     let preset: CodingPreset
     @State private var showingApplyConfirmation: Bool = false
     @State private var isApplying: Bool = false
+    
+    private let simulatedOperationDelay: UInt64 = 2_000_000_000  // 2 seconds
     
     var body: some View {
         NavigationStack {
@@ -312,7 +314,7 @@ struct PresetDetailView: View {
         
         Task {
             // In production, would call PresetService.applyPreset()
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            try? await Task.sleep(nanoseconds: simulatedOperationDelay)
             
             await MainActor.run {
                 isApplying = false
