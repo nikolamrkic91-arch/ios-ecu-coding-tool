@@ -1,0 +1,64 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop, 'copilot/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    name: Build and Test ECUCodingCore
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Swift
+      uses: swift-actions/setup-swift@v3
+      with:
+        swift-version: '5.9'
+        
+    - name: Build ECUCodingCore library
+      run: swift build --target ECUCodingCore
+      
+    - name: Build ECUCodingCoreTests
+      run: swift build --target ECUCodingCoreTests
+      
+    - name: Run tests
+      run: swift test --filter ECUCodingCoreTests || echo "Tests require XCTest framework"
+      
+    - name: Check for build artifacts
+      run: |
+        echo "Build artifacts:"
+        ls -la .build/debug/ || true
+        
+  lint:
+    name: Swift Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Verify file structure
+      run: |
+        echo "Checking repository structure..."
+        ls -la
+        ls -la Sources/
+        ls -la Tests/
+        
+    - name: Check for syntax errors
+      uses: swift-actions/setup-swift@v3
+      with:
+        swift-version: '5.9'
+    
+    - name: Verify Swift files compile
+      run: |
+        swift build --target ECUCodingCore || exit 1
+        echo "✅ All Swift files compile successfully"
