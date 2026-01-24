@@ -31,3 +31,11 @@ Dealer-level BMW coding utility for iOS. Supports ENET-based connectivity, diagn
 2) Implement Transport → UDS scaffold; add simulated mode for testing.
 3) Add persistence for vehicle profiles, logs, and definitions.
 4) Build Phase 1 flows (read-only) before enabling any write.
+
+## Build & Run
+```bash
+swift test
+# Or open in Xcode: File > Open > select repo folder, run ECUCodingApp scheme
+```
+
+**Note:** The full package, including the ECUCodingApp executable, requires Xcode on macOS to build since it uses SwiftUI. The ECUCodingCore library can be built and tested on Linux with Swift Package Manager.
