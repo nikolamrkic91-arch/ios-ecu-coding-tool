@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "A6C3E4FE-4E9F-4A3B-8107-A013DBD1C7BB",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:",
+      "identifier" : "ECUCodingApp",
+      "name" : "ECUCodingApp"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ECUCodingCoreTests",
+        "name" : "ECUCodingCoreTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -51,11 +51,17 @@ struct BackupManagementView: View {
     }
     
     private var emptyStateView: some View {
-        ContentUnavailableView(
-            "No Backups",
-            systemImage: "externaldrive.badge.xmark",
-            description: Text("Backups will appear here after coding operations")
-        )
+        Group {
+            if #available(iOS 17.0, *) {
+                ContentUnavailableView(
+                    "No Backups",
+                    systemImage: "externaldrive.badge.xmark",
+                    description: Text("Backups will appear here after coding operations")
+                )
+            } else {
+                EmptyView()
+            }
+        }
     }
     
     private var backupList: some View {
@@ -82,12 +88,8 @@ struct BackupManagementView: View {
         guard let backup = selectedBackup else { return }
         
         Task {
-            do {
-                // In production: try await backupService.restore(backup)
-                print("Would restore backup: \(backup.module.name)")
-            } catch {
-                print("Error restoring backup: \(error)")
-            }
+            // In production: try await backupService.restore(backup)
+            print("Would restore backup: \(backup.module.name)")
         }
     }
 }
