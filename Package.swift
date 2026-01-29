@@ -4,7 +4,8 @@ import PackageDescription
 let package = Package(
     name: "ios-ecu-coding-tool",
     platforms: [
-        .iOS(.v16)
+        .iOS(.v16),
+        .macOS(.v10_15)
     ],
     products: [
         .library(

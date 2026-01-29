@@ -9,16 +9,14 @@ on:
 jobs:
   build-and-test:
     name: Build and Test ECUCodingCore
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Swift
-      uses: swift-actions/setup-swift@v2
-      with:
-        swift-version: '5.9'
+    - name: Print Swift version
+      run: swift --version
         
     - name: Build ECUCodingCore library
       run: swift build --target ECUCodingCore
@@ -36,11 +34,14 @@ jobs:
         
   lint:
     name: Swift Lint
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      
+    - name: Print Swift version
+      run: swift --version
       
     - name: Verify file structure
       run: |
@@ -48,11 +49,6 @@ jobs:
         ls -la
         ls -la Sources/
         ls -la Tests/
-        
-    - name: Check for syntax errors
-      uses: swift-actions/setup-swift@v2
-      with:
-        swift-version: '5.9'
     
     - name: Verify Swift files compile
       run: |
