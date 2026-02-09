@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+.metro-cache/
+frontend/.metro-cache/
+__pycache__/
+*.pyc
+.env
+.env.local
+.emergent/
+*.log
+
+# Large KIS files (>100MB GitHub limit)  
+backend/psdz_data/cafd/kiswb/
+*.zip
+!downloads/*.zip

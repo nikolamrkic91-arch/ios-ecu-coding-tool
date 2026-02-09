@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SWERBD version="003.000.001" xmlns="http://bmw.com/2005/psdz.data.sweseq">
+    <ecuDependencies bootloader_id="00000F9D">
+        <ecu>
+            <baseVariantName name="AMPT"/>
+            <diagnosticAddress physicalOffset="55"/>
+        </ecu>
+        <preconditions>
+            <id>00000F9D</id>
+            <id>00000F9E</id>
+        </preconditions>
+        <dependors>
+            <id>00000F9F</id>
+            <id>000015FB</id>
+            <id>00002AA5</id>
+        </dependors>
+    </ecuDependencies>
+</SWERBD>
